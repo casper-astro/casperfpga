@@ -1,14 +1,14 @@
 """!@package rmp UDP socket management and RMP packet encoding/decoding
- 
+
 This package provides functions for network initializing and basic 32 bit read/write
 operations on the network attached device using RMP protocol. This is rough and minimal code
-not exploiting all the RMP protocol features.     
+not exploiting all the RMP protocol features.
 """
 import sys
 import socket
 import array
 from struct import *
-
+from .utils import socket_closer
 
 class rmpNetwork():
     def __init__(self, this_ip, fpga_ip, udp_port, timeout):
@@ -38,10 +38,13 @@ class rmpNetwork():
         self.psn = 0
         self.reliable = 0
 
+    def __del__(self):
+        socket_closer("class rmpNetwork __del__", self.sock)
+
     def CloseNetwork(self):
         """!@brief Close previously opened socket.
         """
-        self.sock.close()
+        socket_closer("class rmpNetwork CloseNetwork", self.sock)
         return
 
     def recvfrom_to(self, buff):
@@ -278,7 +281,7 @@ class rmpNetwork():
 
     def socket_flush(self):
         print("Flushing UCP socket...")
-        self.sock.close()
+        socket_closer("class rmpNetwork socket_flush", self.sock)
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Internet # UDP
 

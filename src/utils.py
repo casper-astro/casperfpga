@@ -4,6 +4,7 @@ import queue
 import time
 import logging
 import sys
+import socket
 
 LOGGER = logging.getLogger(__name__)
 
@@ -182,7 +183,7 @@ def pull_info_from_fpg(fpg_file, parameter):
     Available options for x-engine: 'x_fpga_clock', 'xeng_outbits',
     'xeng_accumulation_len'
     Available options for f-engine: 'n_chans', 'quant_format', 'spead_flavour'
-    
+
     :param fpg_file: bit file path
     :param parameter: parameter string
     :return: pattern value (string)
@@ -221,7 +222,7 @@ def pull_info_from_fpg(fpg_file, parameter):
 def check_changing_status(counters, data_function, wait_time, num_checks):
     """
     Check a changing set of status fields.
-    
+
     :param counters: a list of CheckCounters
     :param data_function: a function that will return a single value for the
         fields from field_dict
@@ -285,7 +286,7 @@ def check_changing_status(counters, data_function, wait_time, num_checks):
 def program_fpgas(fpga_list, progfile, timeout=10):
     """
     Program more than one FPGA at the same time.
-    
+
     :param fpga_list: a list of objects for the FPGAs to be programmed
     :param progfile: string, the file used to program the FPGAs
     :param timeout: how long to wait for a response, in seconds
@@ -420,7 +421,7 @@ def threaded_fpga_operation(fpga_list, timeout, target_function):
     :param fpga_list: list of KatcpClientFpga objects
     :param timeout: how long to wait before timing out
     :param target_function: a tuple with three parts:
-                            
+
                             1. reference, the function object that must be
                                run - MUST take FPGA object as first argument
                             2. tuple, the arguments to the function
@@ -465,7 +466,7 @@ def threaded_non_blocking_request(fpga_list, timeout, request, request_args):
     """
     Make a non-blocking KatCP request to a list of KatcpClientFpgas, using
     the Asynchronous client.
-    
+
     :param fpga_list: list of KatcpClientFpga objects
     :param timeout: the request timeout
     :param request: the request string
@@ -541,7 +542,7 @@ def hosts_from_dhcp_leases(host_pref=None,
                            leases_file='/var/lib/misc/dnsmasq.leases'):
     """
     Get a list of hosts from a leases file.
-    
+
     :param host_pref: the prefix of the hosts in which we're interested
     :param leases_file: the file to read
     """
@@ -585,5 +586,27 @@ def deprogram_hosts(host_list):
     if len(already_deprogrammed) != 0:
         print('%s: already deprogrammed.' % already_deprogrammed)
     threaded_fpga_function(fpgas, 10, 'disconnect')
+
+def socket_closer(arg_caller, arg_socket):
+    """
+    Ref: https://docs.python.org/3/library/socket.html
+    See warnings about close() and notes on shutdown().
+
+    Shutdown and close the specified socket.
+    Ignore all exceptions.
+
+    :param arg_caller: Identity and/or context of caller.
+    :param arg_socket: socket to be shutdown & closed.
+    :return: nothing
+    """
+    LOGGER.debug("socket_closer: called from {}".format(arg_caller))
+    try:
+        arg_socket.shutdown(socket.SHUT_RDWR)
+    except:
+        pass
+    try:
+        arg_socket.close()
+    except:
+        pass
 
 # end
