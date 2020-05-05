@@ -116,6 +116,16 @@ class KatcpTransport(Transport, katcp.CallbackClient):
         self.connect()
         self.logger.info('%s: port(%s) created and connected.' % (self.host, port))
 
+    def __del__(self):
+        """
+        When the KatcpTransport object is reclaimed, make sure to
+        disconnect from the device server.
+        """
+        try:
+            self.disconnect()
+        except:
+            pass
+
     @staticmethod
     def test_host_type(host_ip, timeout=5):
         """
@@ -125,7 +135,7 @@ class KatcpTransport(Transport, katcp.CallbackClient):
         :param timeout: as an Integer
         """
         try:
-            
+
             llevel = LOGGER.getEffectiveLevel()
             tlogger = logging.getLogger('tornado')
             tlevel = LOGGER.getEffectiveLevel()
@@ -358,7 +368,7 @@ class KatcpTransport(Transport, katcp.CallbackClient):
     def read(self, device_name, size, offset=0):
         """
         Read size-bytes of binary data with carriage-return escape-sequenced.
-       
+
         :param device_name: name of memory device from which to read
         :param size: how many bytes to read
         :param offset: start at this offset
@@ -735,7 +745,7 @@ class KatcpTransport(Transport, katcp.CallbackClient):
     def _read_design_info_from_host(self, device=None):
         """
         Katcp request for extra system information embedded in the bitstream.
-        
+
         :param device: can specify a device name if you don't want everything
         :return: a dictionary of metadata
         """
@@ -816,7 +826,7 @@ class KatcpTransport(Transport, katcp.CallbackClient):
     def unhandled_inform(self, msg):
         """
         Overloaded from CallbackClient
-        
+
         What do we do with unhandled KATCP inform messages that
         this device receives?
 
