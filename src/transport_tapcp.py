@@ -428,10 +428,6 @@ class TapcpTransport(Transport):
                     pass
                 time.sleep(self.server_timeout)
                 self.logger.info('Tftp error on read -- retrying.')
-                try:
-                    self.t.context.start()
-                except:
-                    pass
         self.logger.warning('Several Tftp errors on read -- final retry.')
         try:
             buf = BytesIO()
