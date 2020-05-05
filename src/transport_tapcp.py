@@ -83,10 +83,10 @@ class TapcpTransport(Transport):
             TFTPY = tftpy
         except ImportError:
             raise ImportError('You need to install tftpy to use TapcpTransport')
-        
+
         Transport.__init__(self, **kwargs)
         self.t = tftpy.TftpClient(kwargs['host'], 69)
-	    
+
         try:
             self.parent = kwargs['parent_fpga']
             self.logger = self.parent.logger
@@ -168,7 +168,7 @@ class TapcpTransport(Transport):
         """ (Re)Program the FPGA with the file already on flash """
         meta = self.get_metadata()
         addr = int(meta['prog_bitstream_start'])
-        print(("File in flash is:  {}".format(meta['filename'])))   
+        print(("File in flash is:  {}".format(meta['filename'])))
         self.progdev(addr=addr)
 
     def get_temp(self):
@@ -181,7 +181,7 @@ class TapcpTransport(Transport):
             self.read('sys_clkcounter', 4)
             return True
         except:
-            return False        
+            return False
 
     def is_running(self):
         """
@@ -199,7 +199,7 @@ class TapcpTransport(Transport):
         header_offset = fpg.find('\n?quit\n'.encode()) + 7
         header = fpg[0:header_offset] + b'0' * (1024-header_offset%1024)
         prog = fpg[header_offset:] + b'0' * (1024-(len(fpg)-header_offset)%1024)
-        
+
         if prog.startswith(b'\x1f\x8b\x08'):
             prog = zlib.decompress(prog, 16 + zlib.MAX_WBITS)
 
@@ -231,8 +231,8 @@ class TapcpTransport(Transport):
                 offset += 4
                 if (meta.find('?end'.encode())!=-1):
                     break
-        
-        metadict = {};        
+
+        metadict = {};
         for _ in meta.split('?'.encode()):
              args = _.split('\t'.encode())
              if len(args) > 1:
@@ -243,9 +243,9 @@ class TapcpTransport(Transport):
 
     def _update_metadata(self,filename,hlen,plen,md5):
         """
-        Update the meta data at user_flash_loc. Metadata is written 
+        Update the meta data at user_flash_loc. Metadata is written
         as 5  32bit integers in the following order:
-        header-location, length of header (in bytes), 
+        header-location, length of header (in bytes),
         program-location, length of the program bitstream (B),
         md5sum of the fpg file
         """
@@ -253,8 +253,8 @@ class TapcpTransport(Transport):
         SECTOR_SIZE = 0x10000
 
         head_loc = USER_FLASH_LOC + SECTOR_SIZE
-        prog_loc = head_loc + hlen 
-        
+        prog_loc = head_loc + hlen
+
         metadict = {}; meta = b''
         metadict['flash'] = '?sector_size\t%d'%SECTOR_SIZE
         metadict['head']  = '?header_start\t%d?header_length\t%d'%(head_loc,hlen)
@@ -392,18 +392,18 @@ class TapcpTransport(Transport):
                 raise RuntimeError("Readback of flash failed!")
         # return timeout to what it used to be
         self.timeout = old_timeout
-    
+
     def _get_device_address(self, device_name):
         """
-        
-        :param device_name: 
+
+        :param device_name:
         """
         raise NotImplementedError
 
     def read(self, device_name, size, offset=0, use_bulk=True):
         """
         Return size_bytes of binary data with carriage-return escape-sequenced.
-       
+
         :param device_name: name of memory device from which to read
         :param size: how many bytes to read
         :param offset: start at this offset, offset in bytes
@@ -428,6 +428,10 @@ class TapcpTransport(Transport):
                     pass
                 time.sleep(self.server_timeout)
                 self.logger.info('Tftp error on read -- retrying.')
+                try:
+                    self.t.context.start()
+                except:
+                    pass
         self.logger.warning('Several Tftp errors on read -- final retry.')
         try:
             buf = BytesIO()
@@ -443,7 +447,7 @@ class TapcpTransport(Transport):
     def blindwrite(self, device_name, data, offset=0, use_bulk=True):
         """
         Unchecked data write.
-        
+
         :param device_name: the memory device to which to write
         :param data: the byte string to write
         :param offset: the offset, in bytes, at which to write
@@ -490,7 +494,7 @@ class TapcpTransport(Transport):
         """
         Used to perform low level wishbone write to a wishbone slave. Gives
         low level direct access to wishbone bus.
-        
+
         :param wb_address: address of the wishbone slave to write to
         :param data: data to write
         :return: response object
@@ -500,7 +504,7 @@ class TapcpTransport(Transport):
     def read_wishbone(self, wb_address):
         """
         Used to perform low level wishbone read from a Wishbone slave.
-        
+
         :param wb_address: address of the wishbone slave to read from
         :return: Read Data or None
         """
@@ -509,7 +513,7 @@ class TapcpTransport(Transport):
     def get_firmware_version(self):
         """
         Read the version of the firmware
-        
+
         :return: golden_image, multiboot, firmware_major_version,
             firmware_minor_version
         """
@@ -518,7 +522,7 @@ class TapcpTransport(Transport):
     def get_soc_version(self):
         """
         Read the version of the soc
-        
+
         :return: golden_image, multiboot, soc_major_version, soc_minor_version
         """
         raise NotImplementedError
