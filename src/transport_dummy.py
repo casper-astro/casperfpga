@@ -1,6 +1,5 @@
 import logging
 
-from . import skarab_definitions as sd
 from .transport import Transport
 from .network import IpAddress
 
@@ -45,8 +44,6 @@ class DummyTransport(Transport):
         Transport.__init__(self, **kwargs)
         self._devices = NamedFifo(100)
         self._devices_wishbone = NamedFifo(100)
-        LOGGER.info('%s: port(%s) created and connected.' % (
-            self.host, sd.ETHERNET_CONTROL_PORT_ADDRESS))
 
     def connect(self, timeout=None):
         """

@@ -20,7 +20,6 @@ from . import onehundredgbe
 from . import qdr
 from . import hmc
 from . import katadc
-from . import skarabadc
 from . import snapadc
 from . import sysmon
 from . import xil_device
@@ -32,7 +31,6 @@ from .attribute_container import AttributeContainer
 from .utils import parse_fpg, get_hostname, get_kwarg, get_git_info_from_fpg
 from .transport_katcp import KatcpTransport
 from .transport_tapcp import TapcpTransport
-from .transport_skarab import SkarabTransport
 from .transport_dummy import DummyTransport
 from .transport_alveo import AlveoTransport
 from .casper_platform_id_map import PLATFORM_ID
@@ -54,15 +52,11 @@ CASPER_MEMORY_DEVICES = {
     'xps:onegbe':       {'class': onegbe.OneGbe,     'container': 'gbes'},
     'casper:snapshot':  {'class': snap.Snap,         'container': 'snapshots'},
     'xps:hmc':          {'class': hmc.Hmc,           'container': 'hmcs'},
-    'xps:skarab_adc4x3g_14':     {'class': skarabadc.SkarabAdc,  'container': 'adcs'},
-    'xps:skarab_adc4x3g_14_byp': {'class': skarabadc.SkarabAdc,  'container': 'adcs'},
     'xps:xil_device':   {'class': xil_device.Xil_Device, 'container': 'xil_device'}
 }
 
 CASPER_ADC_DEVICES = {
     'xps:katadc':                   {'class': katadc.KatAdc,        'container': 'adcs'},
-    'xps:skarab_adc4x3g_14':        {'class': skarabadc.SkarabAdc,  'container': 'adcs'},
-    'xps:skarab_adc4x3g_14_byp':    {'class': skarabadc.SkarabAdc,  'container': 'adcs'},
     'xps:adc_4x16g_asnt':           {'class': adc_4x16g_asnt.Adc_4X16G_ASNT, 'container': 'adcs'},
     'xps:snap_adc':                 {'class': snapadc.SnapAdc,      'container': 'adcs'},
     'xps:snap_adc':                 {'class': snapadc.SnapAdc,      'container': 'adcs'},
@@ -193,11 +187,7 @@ class CasperFpga(object):
         if host_ip.startswith('CasperDummy'):
             return DummyTransport
         try:
-            if SkarabTransport.test_host_type(host_ip):
-                self.logger.info('%s seems to be a SKARAB' % host_ip)
-                return SkarabTransport
-            #must test for Alveo transport before Katcp transport (since alveo inherits from katcp)
-            elif AlveoTransport.test_host_type(host_ip, port):
+            if AlveoTransport.test_host_type(host_ip, port):
                 self.logger.info('%s:%d seems to be an ALVEO' % (host_ip,port))
                 return AlveoTransport
             elif KatcpTransport.test_host_type(host_ip):
