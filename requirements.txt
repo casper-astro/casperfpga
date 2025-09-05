@@ -13,3 +13,4 @@ jedi
 parso
 ipython
 requests
+backports.ssl_match_hostname

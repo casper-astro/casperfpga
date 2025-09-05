@@ -1,8 +1,8 @@
 import logging
 import struct
 import numpy as np
+import importlib.resources as resources
 
-from pkg_resources import resource_filename
 from .memory import Memory
 from .network import Mac, IpAddress
 from .gbe import Gbe
@@ -12,8 +12,8 @@ LOGGER = logging.getLogger(__name__)
 STRUCT_CTYPES = {1: 'B', 2: 'H', 4: 'L', 8: 'Q'}
 STRUCT_CTYPES_TO_B = {'B': 1, 'H': 2, 'L': 4, 'Q': 8}
 
-TENGBE_UNIFIED_MMAP_TXT = resource_filename('casperfpga', 'tengbe_mmap.txt')
-TENGBE_MMAP_LEGACY_TXT  = resource_filename('casperfpga', 'tengbe_mmap_legacy.txt')
+TENGBE_UNIFIED_MMAP_TXT = resources.files('casperfpga') / 'tengbe_mmap.txt'
+TENGBE_MMAP_LEGACY_TXT  = resources.files('casperfpga') / 'tengbe_mmap_legacy.txt'
 
 # Offsets for fields in the memory map, in bytes
 OFFSET_CORE_TYPE   = 0x0

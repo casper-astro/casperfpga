@@ -1,13 +1,13 @@
 import logging
 import time
 import struct
-from pkg_resources import resource_filename
+import importlib.resources as resources
 
 from .network import IpAddress, Mac
 from .tengbe import TenGbe, read_memory_map_definition
 
-TENGBE_UNIFIED_MMAP_TXT = resource_filename('casperfpga', 'tengbe_mmap.txt')
-FORTYGBE_MMAP_LEGACY_TXT  = resource_filename('casperfpga', 'tengbe_mmap_legacy.txt')
+TENGBE_UNIFIED_MMAP_TXT = resources.files('casperfpga') / 'tengbe_mmap.txt'
+TENGBE_MMAP_LEGACY_TXT  = resources.files('casperfpga') / 'fortygbe_mmap_legacy.txt'
 
 
 class FortyGbe(TenGbe):
